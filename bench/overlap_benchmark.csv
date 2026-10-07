@@ -1,0 +1,3 @@
+Type,ExecutionTimeMs
+GiST Index Scan,0.041
+Sequential Scan,0.047
