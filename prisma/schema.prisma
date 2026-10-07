@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum RiskLevel {
+  VERY_LOW
+  LOW
+  MODERATE
+  HIGH
+  VERY_HIGH
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  FAILED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(BUYER)
+  organization String?
+  createdAt    DateTime @default(now())
+
+  listings        Listing[]
+  transactionsBuy Transaction[]     @relation("BuyerTransactions")
+  transactionsSell Transaction[]     @relation("SellerTransactions")
+  ownerships      CreditOwnership[]
+  retirements     Retirement[]
+}
+
+model CarbonProject {
+  id                   String             @id @default(uuid())
+  name                 String
+  description          String
+  projectType          String
+  location             String
+  country              String
+  developer            String
+  methodology          String
+  verificationStandard String
+  verificationStatus   VerificationStatus @default(PENDING)
+  totalCredits         Int
+  availableCredits     Int
+  pricePerCredit       Float
+  projectStartDate     DateTime
+  verificationDate     DateTime?
+  image                String?
+  documentationUrl     String?
+  createdAt            DateTime           @default(now())
+
+  credits       CarbonCredit[]
+  listings      Listing[]
+  transactions  Transaction[]
+  ownerships    CreditOwnership[]
+  retirements   Retirement[]
+  trustScore    TrustScore?
+}
+
+model CarbonCredit {
+  id             String   @id @default(uuid())
+  projectId      String
+  serialNumber   String   @unique
+  quantity       Int
+  status         String   @default("AVAILABLE") // AVAILABLE, RETIRED
+  currentOwnerId String
+  issuedAt       DateTime @default(now())
+
+  project CarbonProject @relation(fields: [projectId], references: [id])
+}
+
+model Listing {
+  id             String        @id @default(uuid())
+  projectId      String
+  sellerId       String
+  quantity       Int
+  pricePerCredit Float
+  status         ListingStatus @default(ACTIVE)
+  createdAt      DateTime      @default(now())
+
+  project      CarbonProject @relation(fields: [projectId], references: [id])
+  seller       User          @relation(fields: [sellerId], references: [id])
+  transactions Transaction[]
+}
+
+model Transaction {
+  id             String            @id @default(uuid())
+  buyerId        String
+  sellerId       String
+  listingId      String?
+  projectId      String
+  quantity       Int
+  pricePerCredit Float
+  totalAmount    Float
+  status         TransactionStatus @default(COMPLETED)
+  createdAt      DateTime          @default(now())
+
+  buyer   User          @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  seller  User          @relation("SellerTransactions", fields: [sellerId], references: [id])
+  listing Listing?      @relation(fields: [listingId], references: [id])
+  project CarbonProject @relation(fields: [projectId], references: [id])
+}
+
+model CreditOwnership {
+  id        String @id @default(uuid())
+  userId    String
+  projectId String
+  quantity  Int
+
+  user    User          @relation(fields: [userId], references: [id])
+  project CarbonProject @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+}
+
+model Retirement {
+  id            String   @id @default(uuid())
+  userId        String
+  projectId     String
+  quantity      Int
+  certificateId String   @unique
+  retiredAt     DateTime @default(now())
+
+  user    User          @relation(fields: [userId], references: [id])
+  project CarbonProject @relation(fields: [projectId], references: [id])
+}
+
+model TrustScore {
+  id                  String    @id @default(uuid())
+  projectId           String    @unique
+  verificationScore   Int
+  documentationScore  Int
+  additionalityScore  Int
+  historyScore        Int
+  provenanceScore     Int
+  doubleCountingScore Int
+  overallScore        Int
+  riskLevel           RiskLevel
+  explanation         String
+
+  project CarbonProject @relation(fields: [projectId], references: [id])
+}
