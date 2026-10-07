@@ -28,8 +28,7 @@ export async function submitProject(formData: FormData) {
       return { success: false, error: "Authentication failed. You must be logged in as a Seller." };
     }
 
-    const seller = { id: user.id, name: user.name, organization: user.organization };
-    }
+    const seller = { id: user.id, name: user.name, organization: user.organization || "" };
 
     // 2. Validate input
     const data = {

@@ -46,6 +46,22 @@ export function Navbar() {
                 Admin Panel
               </Link>
             )}
+            <Link
+              href="/market-intelligence"
+              className={`text-sm font-medium transition-colors hover:text-emerald-600 ${
+                pathname === "/market-intelligence" ? "text-emerald-600" : "text-gray-600"
+              }`}
+            >
+              Intelligence
+            </Link>
+            <Link
+              href="/recommender"
+              className={`text-sm font-medium transition-colors hover:text-emerald-600 ${
+                pathname === "/recommender" ? "text-emerald-600" : "text-gray-600"
+              }`}
+            >
+              AI Assistant
+            </Link>
           </nav>
         </div>
 
