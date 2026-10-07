@@ -6,9 +6,18 @@ import { ShieldCheck, Clock, XCircle, BarChart3, Users, Layers } from "lucide-re
 import { TrustScoreBadge } from "@/components/trust-score-badge";
 import { AdminProjectActions } from "./admin-actions";
 
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Role } from "@prisma/client";
+
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== Role.ADMIN) {
+    redirect("/login");
+  }
+
   const [
     totalProjects,
     pendingProjects,

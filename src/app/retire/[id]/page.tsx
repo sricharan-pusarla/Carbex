@@ -2,15 +2,24 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { RetireClient } from "./retire-client";
 
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Role } from "@prisma/client";
+
 export const dynamic = 'force-dynamic';
 
 export default async function RetirePage({ params }: { params: { id: string } }) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== Role.BUYER) {
+    redirect("/login");
+  }
+
   const ownership = await prisma.creditOwnership.findUnique({
     where: { id: params.id },
     include: { project: true }
   });
 
-  if (!ownership) {
+  if (!ownership || ownership.userId !== user.id) {
     notFound();
   }
 

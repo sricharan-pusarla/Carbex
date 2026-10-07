@@ -1,11 +1,17 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { VerificationStatus } from "@prisma/client";
+import { VerificationStatus, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function approveProject(projectId: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user || user.role !== Role.ADMIN) {
+      return { success: false, error: "Unauthorized. Admin access required." };
+    }
+
     const project = await prisma.carbonProject.findUnique({
       where: { id: projectId }
     });
@@ -29,9 +35,15 @@ export async function approveProject(projectId: string) {
     });
 
     if (!existingListing) {
-      // Find any seller to attach the listing to
+      // Find the specific seller who created the project based on the developer field
       const seller = await prisma.user.findFirst({
-        where: { role: "SELLER" }
+        where: { 
+          role: "SELLER",
+          OR: [
+            { organization: project.developer },
+            { name: project.developer }
+          ]
+        }
       });
 
       if (seller) {

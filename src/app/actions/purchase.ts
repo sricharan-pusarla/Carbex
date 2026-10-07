@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function executePurchase(projectId: string, quantity: number) {
   if (quantity <= 0) {
@@ -10,15 +11,13 @@ export async function executePurchase(projectId: string, quantity: number) {
   }
 
   try {
-    // 1. Mock Authentication: For this demo, we'll grab the first BUYER user from the DB.
-    // In a production app, you would use NextAuth.js or Clerk to get the real user ID.
-    const buyer = await prisma.user.findFirst({
-      where: { role: Role.BUYER }
-    });
+    const user = await getCurrentUser();
 
-    if (!buyer) {
-      return { success: false, error: "Authentication failed. No buyer account found." };
+    if (!user || user.role !== Role.BUYER) {
+      return { success: false, error: "Authentication failed. You must be logged in as a Buyer." };
     }
+
+    const buyer = { id: user.id }; // to keep the rest of the code working
 
     // 2. Fetch the project and verify availability
     const project = await prisma.carbonProject.findUnique({

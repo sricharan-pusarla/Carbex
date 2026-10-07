@@ -10,6 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -59,13 +60,15 @@ export function Navbar() {
                 <ChevronDown className="h-3 w-3 text-muted-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel>
-                  <p className="font-semibold">{user?.name}</p>
-                  <p className="text-xs font-normal text-muted-foreground truncate">{user?.email}</p>
-                  <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary rounded px-1.5 py-0.5">
-                    {user?.role}
-                  </span>
-                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>
+                    <p className="font-semibold">{user?.name}</p>
+                    <p className="text-xs font-normal text-muted-foreground truncate">{user?.email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary rounded px-1.5 py-0.5">
+                      {user?.role}
+                    </span>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 {user?.role === "BUYER" && (
                   <DropdownMenuItem asChild>

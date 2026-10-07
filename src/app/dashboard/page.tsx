@@ -9,14 +9,19 @@ import Link from "next/link";
 import { DashboardCharts } from "./dashboard-charts";
 import { notFound } from "next/navigation";
 
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export const dynamic = 'force-dynamic';
 
 export default async function BuyerDashboard() {
-  const buyer = await prisma.user.findFirst({
-    where: { role: Role.BUYER }
-  });
+  const user = await getCurrentUser();
+  
+  if (!user || user.role !== Role.BUYER) {
+    redirect("/login");
+  }
 
-  if (!buyer) return notFound();
+  const buyer = { id: user.id };
 
   // Fetch ownerships
   const ownerships = await prisma.creditOwnership.findMany({

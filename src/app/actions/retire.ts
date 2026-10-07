@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function executeRetirement(ownershipId: string, quantityToRetire: number) {
   if (quantityToRetire <= 0) {
@@ -11,14 +12,13 @@ export async function executeRetirement(ownershipId: string, quantityToRetire: n
   }
 
   try {
-    // 1. Mock Authentication
-    const buyer = await prisma.user.findFirst({
-      where: { role: Role.BUYER }
-    });
+    const user = await getCurrentUser();
 
-    if (!buyer) {
-      return { success: false, error: "Authentication failed. No buyer account found." };
+    if (!user || user.role !== Role.BUYER) {
+      return { success: false, error: "Authentication failed. You must be logged in as a Buyer." };
     }
+
+    const buyer = { id: user.id };
 
     // 2. Fetch ownership record
     const ownership = await prisma.creditOwnership.findUnique({

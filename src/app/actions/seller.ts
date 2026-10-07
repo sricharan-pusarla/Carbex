@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { evaluateProjectTrust } from "@/lib/trust-score";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { getCurrentUser } from "@/lib/auth";
 
 const projectSchema = z.object({
   name: z.string().min(5),
@@ -21,13 +22,13 @@ const projectSchema = z.object({
 
 export async function submitProject(formData: FormData) {
   try {
-    // 1. Mock Authentication
-    const seller = await prisma.user.findFirst({
-      where: { role: Role.SELLER }
-    });
+    const user = await getCurrentUser();
 
-    if (!seller) {
-      return { success: false, error: "Authentication failed. No seller account found." };
+    if (!user || user.role !== Role.SELLER) {
+      return { success: false, error: "Authentication failed. You must be logged in as a Seller." };
+    }
+
+    const seller = { id: user.id, name: user.name, organization: user.organization };
     }
 
     // 2. Validate input

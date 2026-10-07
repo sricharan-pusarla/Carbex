@@ -9,14 +9,19 @@ import { Plus, LayoutDashboard, BarChart3, Clock, CheckCircle2 } from "lucide-re
 import Link from "next/link";
 import { TrustScoreBadge } from "@/components/trust-score-badge";
 
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
 export const dynamic = 'force-dynamic';
 
 export default async function SellerDashboard() {
-  const seller = await prisma.user.findFirst({
-    where: { role: Role.SELLER }
-  });
+  const user = await getCurrentUser();
+  
+  if (!user || user.role !== Role.SELLER) {
+    redirect("/login");
+  }
 
-  if (!seller) return notFound();
+  const seller = { id: user.id, name: user.name, organization: user.organization };
 
   // Fetch projects created by this seller
   const developerName = seller.organization || seller.name;

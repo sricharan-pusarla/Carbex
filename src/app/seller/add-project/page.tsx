@@ -1,6 +1,14 @@
 import { AddProjectForm } from "./add-project-form";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { Role } from "@prisma/client";
 
-export default function AddProjectPage() {
+export default async function AddProjectPage() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== Role.SELLER) {
+    redirect("/login");
+  }
+
   return (
     <div className="container mx-auto max-w-3xl px-4 py-12">
       <div className="mb-10 text-center">
