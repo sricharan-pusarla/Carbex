@@ -43,33 +43,21 @@ export async function executeRetirement(ownershipId: string, quantityToRetire: n
 
     // 3. Execute atomic database transaction
     await prisma.$transaction(async (tx) => {
-      // Create the retirement record
-      const retirement = await tx.retirement.create({
-        data: {
-          userId: buyer.id,
-          projectId: ownership.projectId,
-          quantity: quantityToRetire,
-          certificateId: certificateId,
-        }
-      });
-      retirementId = retirement.id;
+      
+      // 4. CALL THE NEW RANGE LEDGER PL/pgSQL FUNCTION
+      const registry: any[] = await tx.$queryRaw`SELECT id FROM "registry" WHERE "projectId" = ${ownership.projectId} LIMIT 1`;
+      if (!registry.length) throw new Error("Registry not found");
 
-      // Deduct from ownership
-      if (quantityToRetire === ownership.quantity) {
-        // If retiring all, delete the ownership record
-        await tx.creditOwnership.delete({
-          where: { id: ownershipId }
-        });
-      } else {
-        // Otherwise decrement
-        await tx.creditOwnership.update({
-          where: { id: ownershipId },
-          data: {
-            quantity: {
-              decrement: quantityToRetire
-            }
-          }
-        });
+      await tx.$executeRaw`SELECT retire_credits(${registry[0].id}, ${buyer.id}, ${quantityToRetire}::int8)`;
+
+      // Fetch the retirement view ID to return to the client
+      const retView: any[] = await tx.$queryRaw`
+        SELECT id FROM "Retirement" 
+        WHERE "userId" = ${buyer.id} AND "projectId" = ${ownership.projectId}
+        LIMIT 1
+      `;
+      if (retView.length > 0) {
+        retirementId = retView[0].id;
       }
     });
 
