@@ -125,9 +125,29 @@ export async function submitProject(formData: FormData) {
 
     // 4. Generate simulated auditing scores for the Trust Score Engine
     // In a real app, this would come from an external oracle or auditing firm.
+    
+    // Base scores
+    let docScoreBase = 80;
+    let verScoreBase = 80;
+
+    // Influence Trust Score with our Dummy Engine findings
+    if (hasDocuments && engineFindings) {
+      const engineResult = JSON.parse(engineFindings);
+      if (engineResult.overallRisk === "HIGH") {
+        docScoreBase = 40;
+        verScoreBase = 40;
+      } else if (engineResult.overallRisk === "MODERATE") {
+        docScoreBase = 65;
+        verScoreBase = 65;
+      } else {
+        docScoreBase = 90;
+        verScoreBase = 90;
+      }
+    }
+
     const rawScores = {
-      verificationScore: Math.floor(Math.random() * 40) + 60, // 60-100
-      documentationScore: Math.floor(Math.random() * 40) + 60,
+      verificationScore: Math.floor(Math.random() * 20) + (verScoreBase - 10), // varies based on document audit
+      documentationScore: Math.floor(Math.random() * 20) + (docScoreBase - 10), // varies based on document audit
       additionalityScore: Math.floor(Math.random() * 40) + 60,
       historyScore: Math.floor(Math.random() * 40) + 60,
       provenanceScore: Math.floor(Math.random() * 40) + 60,
