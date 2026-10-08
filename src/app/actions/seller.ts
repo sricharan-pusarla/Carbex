@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
+import { runDummyVerificationEngine } from "@/lib/verification-engine";
 
 const projectSchema = z.object({
   name: z.string().min(5),
@@ -67,6 +68,7 @@ export async function submitProject(formData: FormData) {
     await mkdir(storageDir, { recursive: true });
 
     let hasDocuments = false;
+    const savedDocuments = [];
     for (const [key, value] of formData.entries()) {
       if (key.startsWith('document_') && value instanceof File) {
         hasDocuments = true;
@@ -80,7 +82,7 @@ export async function submitProject(formData: FormData) {
         
         await writeFile(filePath, buffer);
         
-        await prisma.projectDocument.create({
+        const savedDoc = await prisma.projectDocument.create({
           data: {
             projectId: project.id,
             documentType: docId,
@@ -91,14 +93,33 @@ export async function submitProject(formData: FormData) {
             status: DocumentStatus.UPLOADED
           }
         });
+        savedDocuments.push(savedDoc);
       }
     }
 
-    // 3.2 Initialize Verification Tracker
+    // 3.2 Initialize Verification Tracker & Run Dummy Engine
+    let verificationState = hasDocuments ? ProjectVerificationState.DOCUMENTS_SUBMITTED : ProjectVerificationState.DRAFT;
+    let engineFindings = null;
+    let engineRisk = null;
+
+    if (hasDocuments) {
+      const engineResult = await runDummyVerificationEngine(savedDocuments);
+      engineFindings = JSON.stringify(engineResult);
+      engineRisk = engineResult.overallRisk;
+      
+      if (engineResult.recommendedAction === "MANUAL_REVIEW_REQUIRED") {
+        verificationState = ProjectVerificationState.UNDER_REVIEW;
+      } else if (engineResult.recommendedAction === "AUTO_APPROVE") {
+        verificationState = ProjectVerificationState.APPROVED; // Though in a real app, admin might still need to click it
+      }
+    }
+
     await prisma.projectVerification.create({
       data: {
         projectId: project.id,
-        status: hasDocuments ? ProjectVerificationState.DOCUMENTS_SUBMITTED : ProjectVerificationState.DRAFT,
+        status: verificationState,
+        riskLevel: engineRisk,
+        findings: engineFindings,
       }
     });
 
