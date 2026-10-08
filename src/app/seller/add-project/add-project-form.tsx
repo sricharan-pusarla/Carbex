@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getRequiredDocuments } from "@/lib/document-requirements";
 import { Badge } from "@/components/ui/badge";
+import { CameraCaptureModal } from "@/components/camera-modal";
 
 export function AddProjectForm() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function AddProjectForm() {
   // Document upload state
   const [documents, setDocuments] = useState<Record<string, File>>({});
   const [docErrors, setDocErrors] = useState<Record<string, string>>({});
+  const [activeCameraDoc, setActiveCameraDoc] = useState<{id: string, name: string} | null>(null);
   
   const requiredDocs = getRequiredDocuments(projectType);
 
@@ -190,7 +192,7 @@ export function AddProjectForm() {
                             Upload Document
                           </div>
                         </label>
-                        <Button variant="outline" size="sm" type="button" className="h-9">
+                        <Button variant="outline" size="sm" type="button" className="h-9" onClick={() => setActiveCameraDoc({id: doc.id, name: doc.name})}>
                           <Camera className="mr-2 h-4 w-4" />
                           Take Photo
                         </Button>
@@ -275,6 +277,15 @@ export function AddProjectForm() {
           </Button>
         </CardFooter>
       </Card>
+
+      {activeCameraDoc && (
+        <CameraCaptureModal 
+          isOpen={true} 
+          onClose={() => setActiveCameraDoc(null)} 
+          documentName={activeCameraDoc.name}
+          onCapture={(file) => handleFileUpload(activeCameraDoc.id, file)}
+        />
+      )}
     </form>
   );
 }
