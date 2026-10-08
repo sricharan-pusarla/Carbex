@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ShieldCheck, Clock, XCircle, BarChart3, Users, Layers } from "lucide-react";
 import { TrustScoreBadge } from "@/components/trust-score-badge";
 import { AdminProjectActions } from "./admin-actions";
+import Link from "next/link";
 
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -146,7 +147,11 @@ export default async function AdminDashboard() {
                   <TableBody>
                     {pendingList.map((project) => (
                       <TableRow key={project.id}>
-                        <TableCell className="font-semibold">{project.name}</TableCell>
+                        <TableCell className="font-semibold">
+                          <Link href={`/admin/verify/${project.id}`} className="hover:underline text-blue-600 dark:text-blue-400">
+                            {project.name}
+                          </Link>
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline">{project.projectType}</Badge>
                         </TableCell>
