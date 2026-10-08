@@ -66,6 +66,12 @@ export function AddProjectForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
+    
+    // Append all uploaded documents
+    Object.entries(documents).forEach(([docId, file]) => {
+      formData.append(`document_${docId}`, file);
+    });
+
     const result = await submitProject(formData);
 
     if (result.success) {

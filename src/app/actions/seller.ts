@@ -1,9 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Role, VerificationStatus } from "@prisma/client";
+import { Role, VerificationStatus, DocumentStatus, ProjectVerificationState } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { evaluateProjectTrust } from "@/lib/trust-score";
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { randomUUID } from 'crypto';
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
@@ -56,6 +59,46 @@ export async function submitProject(formData: FormData) {
         availableCredits: parsed.data.totalCredits,
         projectStartDate: new Date(),
         verificationStatus: VerificationStatus.PENDING,
+      }
+    });
+
+    // 3.1 Store Documents
+    const storageDir = join(process.cwd(), 'storage', 'documents');
+    await mkdir(storageDir, { recursive: true });
+
+    let hasDocuments = false;
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('document_') && value instanceof File) {
+        hasDocuments = true;
+        const docId = key.replace('document_', '');
+        const file = value;
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        const uniqueFilename = `${randomUUID()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const filePath = join(storageDir, uniqueFilename);
+        
+        await writeFile(filePath, buffer);
+        
+        await prisma.projectDocument.create({
+          data: {
+            projectId: project.id,
+            documentType: docId,
+            originalFileName: file.name,
+            filePath: uniqueFilename, // Secure: only storing the filename
+            mimeType: file.type,
+            fileSize: file.size,
+            status: DocumentStatus.UPLOADED
+          }
+        });
+      }
+    }
+
+    // 3.2 Initialize Verification Tracker
+    await prisma.projectVerification.create({
+      data: {
+        projectId: project.id,
+        status: hasDocuments ? ProjectVerificationState.DOCUMENTS_SUBMITTED : ProjectVerificationState.DRAFT,
       }
     });
 
