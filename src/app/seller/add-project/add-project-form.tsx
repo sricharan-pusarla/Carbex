@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, CheckCircle2, FileText } from "lucide-react";
+import { Loader2, CheckCircle2, FileText, Upload, Camera, Trash2, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getRequiredDocuments } from "@/lib/document-requirements";
@@ -20,7 +20,43 @@ export function AddProjectForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
+  // Document upload state
+  const [documents, setDocuments] = useState<Record<string, File>>({});
+  const [docErrors, setDocErrors] = useState<Record<string, string>>({});
+  
   const requiredDocs = getRequiredDocuments(projectType);
+
+  const handleFileUpload = (docId: string, file: File | null) => {
+    if (!file) return;
+    
+    // Validation
+    const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
+    if (!validTypes.includes(file.type)) {
+      setDocErrors(prev => ({ ...prev, [docId]: "Invalid file type. Only PDF, JPG, and PNG are allowed." }));
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      setDocErrors(prev => ({ ...prev, [docId]: "File size must be under 10MB." }));
+      return;
+    }
+
+    setDocErrors(prev => {
+      const newErr = { ...prev };
+      delete newErr[docId];
+      return newErr;
+    });
+    
+    setDocuments(prev => ({ ...prev, [docId]: file }));
+  };
+
+  const removeDocument = (docId: string) => {
+    setDocuments(prev => {
+      const newDocs = { ...prev };
+      delete newDocs[docId];
+      return newDocs;
+    });
+  };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -111,27 +147,88 @@ export function AddProjectForm() {
           <div className="bg-muted/30 border rounded-lg p-5">
             <h3 className="font-semibold mb-1">Required Documentation</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              The following documents will be required in the next step based on the selected project type ({projectType}).
+              Please upload all required supporting files. We accept PDF, JPG, or PNG under 10MB.
             </p>
-            <div className="space-y-3">
-              {requiredDocs.map((doc, idx) => (
-                <div key={doc.id} className="flex items-center gap-3 bg-background border p-3 rounded-md shadow-sm">
-                  <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                    <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-xs">{idx + 1}</span>
+            <div className="space-y-4">
+              {requiredDocs.map((doc, idx) => {
+                const uploadedFile = documents[doc.id];
+                const errorMsg = docErrors[doc.id];
+                
+                return (
+                  <div key={doc.id} className="bg-background border rounded-lg p-4 shadow-sm flex flex-col space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm flex items-center gap-2">
+                          {doc.name}
+                          {doc.isRequired ? (
+                            <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-[10px] px-1.5 py-0">REQUIRED</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">OPTIONAL</Badge>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Status: {uploadedFile ? <span className="text-emerald-600 font-medium">Uploaded</span> : "Not uploaded"}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {errorMsg && (
+                      <p className="text-xs text-red-500 font-medium">{errorMsg}</p>
+                    )}
+
+                    {!uploadedFile ? (
+                      <div className="flex flex-wrap gap-2 pt-2 border-t border-dashed border-border/60">
+                        <label className="cursor-pointer">
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(e) => handleFileUpload(doc.id, e.target.files?.[0] || null)}
+                          />
+                          <div className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Document
+                          </div>
+                        </label>
+                        <Button variant="outline" size="sm" type="button" className="h-9">
+                          <Camera className="mr-2 h-4 w-4" />
+                          Take Photo
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between pt-2 border-t border-dashed border-border/60">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="text-sm font-medium truncate">{uploadedFile.name}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            ({(uploadedFile.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                        </div>
+                        <div className="flex gap-2 shrink-0 ml-4">
+                          <Button variant="ghost" size="icon" type="button" className="h-8 w-8" onClick={() => {
+                            const url = URL.createObjectURL(uploadedFile);
+                            window.open(url, "_blank");
+                          }}>
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                          <label className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:bg-accent hover:text-accent-foreground h-8 w-8">
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept=".pdf,.jpg,.jpeg,.png"
+                              onChange={(e) => handleFileUpload(doc.id, e.target.files?.[0] || null)}
+                            />
+                            <Upload className="h-4 w-4 text-muted-foreground" />
+                          </label>
+                          <Button variant="ghost" size="icon" type="button" className="h-8 w-8 hover:bg-red-50 hover:text-red-600" onClick={() => removeDocument(doc.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm flex items-center gap-2">
-                      {doc.name}
-                      {doc.isRequired ? (
-                        <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-[10px] px-1.5 py-0">REQUIRED</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">OPTIONAL</Badge>
-                      )}
-                    </p>
-                  </div>
-                  <FileText className="w-4 h-4 text-muted-foreground" />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
