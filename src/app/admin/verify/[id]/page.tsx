@@ -9,6 +9,7 @@ import { FileText, ExternalLink, AlertTriangle, CheckCircle2, ShieldAlert } from
 import Link from "next/link";
 import { getRequiredDocuments } from "@/lib/document-requirements";
 import { TrustScoreBadge } from "@/components/trust-score-badge";
+import { AdminReviewForm } from "./admin-review-form";
 
 export default async function AdminVerificationPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser();
@@ -176,11 +177,14 @@ export default async function AdminVerificationPage({ params }: { params: { id: 
                    </div>
                  </div>
               </div>
-
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {project.verificationStatus === "PENDING" && (
+        <AdminReviewForm projectId={project.id} />
+      )}
     </div>
   );
 }
