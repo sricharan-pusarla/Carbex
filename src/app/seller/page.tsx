@@ -135,11 +135,9 @@ export default async function SellerDashboard() {
                     {projects.map((project) => (
                       <TableRow key={project.id}>
                         <TableCell className="font-medium">
-                          {project.verificationStatus === "VERIFIED" ? (
-                            <Link href={`/projects/${project.id}`} className="hover:underline">{project.name}</Link>
-                          ) : (
-                            project.name
-                          )}
+                          <Link href={`/seller/projects/${project.id}`} className="hover:underline font-semibold text-emerald-700 dark:text-emerald-400">
+                            {project.name}
+                          </Link>
                         </TableCell>
                         <TableCell>
                           <Badge variant={project.verificationStatus === "VERIFIED" ? "default" : "secondary"} 
