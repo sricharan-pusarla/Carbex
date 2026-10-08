@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo } from "react";
 import { CarbonProject, TrustScore } from "@prisma/client";
@@ -90,7 +90,7 @@ export default function MarketplaceClient({ initialProjects }: { initialProjects
 
         <div className="space-y-3">
           <label className="text-sm font-medium text-muted-foreground">Project Type</label>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val as string)}>
             <SelectTrigger>
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
@@ -105,7 +105,7 @@ export default function MarketplaceClient({ initialProjects }: { initialProjects
 
         <div className="space-y-3">
           <label className="text-sm font-medium text-muted-foreground">Risk Level</label>
-          <Select value={riskFilter} onValueChange={setRiskFilter}>
+          <Select value={riskFilter} onValueChange={(val) => setRiskFilter(val as string)}>
             <SelectTrigger>
               <SelectValue placeholder="All Risk Levels" />
             </SelectTrigger>
@@ -131,7 +131,7 @@ export default function MarketplaceClient({ initialProjects }: { initialProjects
           
           <div className="flex items-center gap-2 shrink-0">
             <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={(val) => setSortBy(val as string)}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>

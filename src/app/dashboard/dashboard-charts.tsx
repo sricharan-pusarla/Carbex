@@ -39,7 +39,7 @@ export function DashboardCharts({ distributionData }: { distributionData: ChartD
                   ))}
                 </Pie>
                 <Tooltip 
-                  formatter={(value: number) => [value.toLocaleString(), 'Credits']}
+                  formatter={(value: any) => [Number(value).toLocaleString(), 'Credits']}
                   contentStyle={{ borderRadius: '8px', border: '1px solid var(--border)' }}
                 />
                 <Legend />

@@ -24,9 +24,9 @@ export default async function CertificatePage({ params }: { params: { id: string
   return (
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="flex justify-between items-center mb-8">
-        <Button variant="outline" asChild>
-          <Link href="/dashboard">Back to Dashboard</Link>
-        </Button>
+        <Link href="/dashboard">
+          <Button variant="outline">Back to Dashboard</Button>
+        </Link>
         <div className="flex gap-3">
           <Button variant="outline"><Share2 className="mr-2 h-4 w-4" /> Share</Button>
           <Button className="bg-emerald-600 hover:bg-emerald-700 text-white"><Download className="mr-2 h-4 w-4" /> Download PDF</Button>

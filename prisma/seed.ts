@@ -1,4 +1,4 @@
-﻿import { PrismaClient, Role, VerificationStatus, RiskLevel } from "@prisma/client";
+import { PrismaClient, Role, VerificationStatus, RiskLevel } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -51,7 +51,7 @@ async function main() {
 
   const projects = [
     {
-      name: "Tamil Nadu Solar Initiative (DEMO)",
+      name: "Tamil Nadu Solar Initiative",
       description: "A large-scale solar farm across 1,200 acres in Tamil Nadu generating clean renewable energy for over 40,000 rural households, displacing coal-based power generation. The project has been operational since 2019 with a consistent track record of additionality.",
       projectType: "Renewable Energy",
       location: "Tamil Nadu",
@@ -68,7 +68,7 @@ async function main() {
       trust: { v: 95, d: 91, a: 87, h: 89, p: 94, dc: 90, overall: 91, risk: RiskLevel.VERY_LOW, exp: "This project demonstrates an elite risk profile. It is highlighted by exceptional verification standards and transparent chain of custody." },
     },
     {
-      name: "Amazonas Reforestation Project (DEMO)",
+      name: "Amazonas Reforestation Project",
       description: "Active reforestation of 15,000 hectares of degraded land in the Amazonas basin using native species. The project works with local indigenous communities to restore biodiversity corridors and sequester carbon at scale.",
       projectType: "Reforestation",
       location: "Amazonas",
@@ -85,7 +85,7 @@ async function main() {
       trust: { v: 98, d: 94, a: 95, h: 92, p: 97, dc: 96, overall: 95, risk: RiskLevel.VERY_LOW, exp: "This project demonstrates an elite risk profile. It is highlighted by exceptional verification standards, strong proof of additionality, and transparent chain of custody." },
     },
     {
-      name: "Rajasthan Wind Energy Farm (DEMO)",
+      name: "Rajasthan Wind Energy Farm",
       description: "A 250MW wind energy installation in the Thar Desert region of Rajasthan, providing clean electricity to the national grid. The project employs 450 local people and has a strong 7-year history of verified emission reductions.",
       projectType: "Renewable Energy",
       location: "Rajasthan",
@@ -102,7 +102,7 @@ async function main() {
       trust: { v: 92, d: 88, a: 85, h: 91, p: 90, dc: 93, overall: 90, risk: RiskLevel.VERY_LOW, exp: "This project demonstrates an elite risk profile. It is highlighted by exceptional verification standards and negligible double-counting risk." },
     },
     {
-      name: "Borneo Peat Swamp Conservation (DEMO)",
+      name: "Borneo Peat Swamp Conservation",
       description: "Protection of 50,000 hectares of threatened peat swamp forest in Kalimantan, Indonesia. Peat swamps store up to 10x more carbon per hectare than tropical forests.",
       projectType: "Reforestation",
       location: "Kalimantan",
@@ -119,7 +119,7 @@ async function main() {
       trust: { v: 85, d: 80, a: 82, h: 78, p: 88, dc: 75, overall: 82, risk: RiskLevel.LOW, exp: "This project presents a solid, low-risk opportunity. While it benefits from exceptional verification standards, it is held back by opaque provenance tracking." },
     },
     {
-      name: "Gujarat Clean Cookstoves Program (DEMO)",
+      name: "Gujarat Clean Cookstoves Program",
       description: "Distribution of 80,000 efficient cookstoves to rural households in Gujarat, replacing traditional biomass stoves. Reduces indoor air pollution and significantly cuts CO2 emissions from incomplete combustion.",
       projectType: "Clean Cooking",
       location: "Gujarat",
@@ -136,7 +136,7 @@ async function main() {
       trust: { v: 88, d: 85, a: 79, h: 83, p: 86, dc: 82, overall: 84, risk: RiskLevel.LOW, exp: "This project presents a solid, low-risk opportunity. It is highlighted by exceptional verification standards and transparent chain of custody." },
     },
     {
-      name: "Kenya Methane Capture Landfill (DEMO)",
+      name: "Kenya Methane Capture Landfill",
       description: "Capture and destruction of methane from the Dandora municipal solid waste landfill near Nairobi. Methane is 80x more potent than CO2 over 20 years, making this a high-impact project.",
       projectType: "Methane Capture",
       location: "Nairobi",
@@ -153,7 +153,7 @@ async function main() {
       trust: { v: 86, d: 79, a: 83, h: 75, p: 80, dc: 77, overall: 81, risk: RiskLevel.LOW, exp: "This project presents a solid, low-risk opportunity. It performs averagely across all tracked market metrics." },
     },
     {
-      name: "Vietnam Mangrove Restoration (DEMO)",
+      name: "Vietnam Mangrove Restoration",
       description: "Restoration of 8,000 hectares of degraded mangrove forests along the Mekong Delta coast, sequestering blue carbon and protecting coastal communities from storm surges.",
       projectType: "Blue Carbon",
       location: "Mekong Delta",
@@ -170,7 +170,7 @@ async function main() {
       trust: { v: 89, d: 86, a: 88, h: 72, p: 91, dc: 85, overall: 86, risk: RiskLevel.LOW, exp: "This project presents a solid, low-risk opportunity. It is highlighted by transparent chain of custody and strong proof of additionality." },
     },
     {
-      name: "Madhya Pradesh Community Forest (DEMO)",
+      name: "Madhya Pradesh Community Forest",
       description: "Improved Forest Management (IFM) project protecting 25,000 hectares of community-owned forests in Madhya Pradesh from illegal logging and land use change.",
       projectType: "Reforestation",
       location: "Madhya Pradesh",
@@ -187,7 +187,7 @@ async function main() {
       trust: { v: 82, d: 78, a: 75, h: 70, p: 83, dc: 79, overall: 78, risk: RiskLevel.MODERATE, exp: "This project is generally acceptable but carries some standard market risks. While it benefits from transparent chain of custody, it is held back by questionable baseline scenarios (additionality)." },
     },
     {
-      name: "Ethiopia Improved Cookstoves (DEMO)",
+      name: "Ethiopia Improved Cookstoves",
       description: "Deployment of 50,000 improved cookstoves across rural Ethiopia. The program focuses on capacity building and empowering women-led cooperatives to distribute and maintain the stoves.",
       projectType: "Clean Cooking",
       location: "Oromia Region",
@@ -204,7 +204,7 @@ async function main() {
       trust: { v: 78, d: 73, a: 71, h: 69, p: 76, dc: 80, overall: 74, risk: RiskLevel.MODERATE, exp: "This project is generally acceptable but carries some standard market risks. It performs averagely across all tracked market metrics." },
     },
     {
-      name: "Peru REDD+ Forest Protection (DEMO)",
+      name: "Peru REDD+ Forest Protection",
       description: "REDD+ project protecting 120,000 hectares of primary forest in the Peruvian Amazon from agricultural expansion and illegal logging. Has faced challenges in proving permanence due to regional deforestation pressures.",
       projectType: "Reforestation",
       location: "Amazon Region",
@@ -221,7 +221,7 @@ async function main() {
       trust: { v: 75, d: 68, a: 65, h: 72, p: 70, dc: 63, overall: 70, risk: RiskLevel.MODERATE, exp: "This project is generally acceptable but carries some standard market risks. While it benefits from exceptional verification standards, it is held back by high risk of double-counting overlap." },
     },
     {
-      name: "Maharashtra Biogas Waste Project (DEMO)",
+      name: "Maharashtra Biogas Waste Project",
       description: "Small-scale biogas digesters installed across 5,000 farms in Maharashtra to capture methane from livestock waste. The project is well-monitored but has limited documentation available to third-party auditors.",
       projectType: "Methane Capture",
       location: "Maharashtra",
@@ -238,7 +238,7 @@ async function main() {
       trust: { v: 68, d: 62, a: 70, h: 65, p: 60, dc: 72, overall: 66, risk: RiskLevel.HIGH, exp: "This project carries significant risk factors and should be approached with caution. Its score is primarily impacted by opaque provenance tracking and weak verification backing." },
     },
     {
-      name: "Uganda Agroforestry Initiative (DEMO)",
+      name: "Uganda Agroforestry Initiative",
       description: "Agroforestry project integrating trees into smallholder farms across 10,000 hectares in Uganda. The project has good social co-benefits but faces challenges related to monitoring, reporting, and verification due to limited local capacity.",
       projectType: "Reforestation",
       location: "Central Uganda",

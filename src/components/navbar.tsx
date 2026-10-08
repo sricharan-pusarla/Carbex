@@ -5,6 +5,7 @@ import { Leaf, LogOut, User, ChevronDown } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import {
 export function Navbar() {
   const { data: session, status } = useSession();
   const user = session?.user as any;
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

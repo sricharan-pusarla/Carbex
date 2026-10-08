@@ -39,6 +39,24 @@ enum TransactionStatus {
   FAILED
 }
 
+enum DocumentStatus {
+  UPLOADED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  REQUIRES_REUPLOAD
+}
+
+enum ProjectVerificationState {
+  DRAFT
+  DOCUMENTS_REQUIRED
+  DOCUMENTS_SUBMITTED
+  UNDER_REVIEW
+  NEEDS_CORRECTION
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String   @id @default(uuid())
   name         String
@@ -81,6 +99,8 @@ model CarbonProject {
   ownerships    CreditOwnership[]
   retirements   Retirement[]
   trustScore    TrustScore?
+  documents     ProjectDocument[]
+  verification  ProjectVerification?
 }
 
 model CarbonCredit {
@@ -163,6 +183,37 @@ model TrustScore {
   overallScore        Int
   riskLevel           RiskLevel
   explanation         String
+
+  project CarbonProject @relation(fields: [projectId], references: [id])
+}
+
+model ProjectDocument {
+  id               String         @id @default(uuid())
+  projectId        String
+  documentType     String
+  originalFileName String
+  filePath         String
+  mimeType         String
+  fileSize         Int
+  status           DocumentStatus @default(UPLOADED)
+  uploadedAt       DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  project CarbonProject @relation(fields: [projectId], references: [id])
+}
+
+model ProjectVerification {
+  id            String                   @id @default(uuid())
+  projectId     String                   @unique
+  status        ProjectVerificationState @default(DRAFT)
+  score         Int?
+  riskLevel     RiskLevel?
+  findings      String?
+  adminComments String?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
 
   project CarbonProject @relation(fields: [projectId], references: [id])
 }

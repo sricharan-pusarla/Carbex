@@ -1,11 +1,37 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BarChart3, CheckCircle2, Leaf, Shield, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const projects = await prisma.carbonProject.findMany({
+    select: {
+      totalCredits: true,
+      availableCredits: true,
+      pricePerCredit: true,
+      verificationStatus: true,
+      trustScore: { select: { overallScore: true } }
+    }
+  });
+
+  const verifiedCount = projects.filter(p => p.verificationStatus === 'VERIFIED').length;
+  const totalListed = projects.reduce((acc, p) => acc + p.totalCredits, 0);
+  const totalAvailable = projects.reduce((acc, p) => acc + p.availableCredits, 0);
+  const totalTraded = totalListed - totalAvailable;
+
+  const totalValueTraded = projects.reduce((acc, p) => {
+    const traded = p.totalCredits - p.availableCredits;
+    return acc + (traded * p.pricePerCredit);
+  }, 0);
+
+  const projectsWithScores = projects.filter(p => p.trustScore !== null);
+  const avgScore = projectsWithScores.length > 0 
+    ? Math.round(projectsWithScores.reduce((acc, p) => acc + (p.trustScore?.overallScore || 0), 0) / projectsWithScores.length)
+    : 0;
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO SECTION */}
@@ -99,24 +125,24 @@ export default function Home() {
       {/* STATISTICS SECTION */}
       <section className="border-y bg-muted/30 py-16">
         <div className="container mx-auto px-4 max-w-7xl">
-          <p className="text-center text-xs font-bold text-muted-foreground tracking-widest uppercase mb-10">
-            Demo Platform Statistics
+          <p className="text-center text-xs font-bold text-emerald-600 tracking-widest uppercase mb-10 flex justify-center items-center gap-2">
+            <CheckCircle2 className="h-4 w-4" /> Live Platform Statistics (PostgreSQL Range Ledger)
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center">
             <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">$24.8M</h3>
-              <p className="text-sm text-muted-foreground font-medium">Credits Traded</p>
+              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary">₹{totalValueTraded.toLocaleString()}</h3>
+              <p className="text-sm text-muted-foreground font-medium">Value Traded</p>
             </div>
             <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">1.8M</h3>
+              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">{totalListed.toLocaleString()}</h3>
               <p className="text-sm text-muted-foreground font-medium">Credits Listed</p>
             </div>
             <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">324</h3>
+              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">{verifiedCount}</h3>
               <p className="text-sm text-muted-foreground font-medium">Verified Projects</p>
             </div>
             <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary">94</h3>
+              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-emerald-600">{avgScore}/100</h3>
               <p className="text-sm text-muted-foreground font-medium">Avg. Trust Score</p>
             </div>
           </div>

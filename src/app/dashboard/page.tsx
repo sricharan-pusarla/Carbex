@@ -133,7 +133,7 @@ export default async function BuyerDashboard() {
             {ownerships.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm border border-dashed rounded-xl">
                 You do not own any credits yet.<br/>
-                <Button variant="link" asChild className="mt-2"><Link href="/marketplace">Explore the Marketplace</Link></Button>
+                <Link href="/marketplace"><Button variant="link" className="mt-2">Explore the Marketplace</Button></Link>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -157,9 +157,9 @@ export default async function BuyerDashboard() {
                         <TableCell><Badge variant="secondary">{ownership.project.projectType}</Badge></TableCell>
                         <TableCell className="text-right font-bold">{ownership.quantity.toLocaleString()}</TableCell>
                         <TableCell className="text-right">
-                          <Button size="sm" variant="outline" asChild>
-                            <Link href={`/retire/${ownership.id}`}>Retire</Link>
-                          </Button>
+                          <Link href={`/retire/${ownership.id}`}>
+                            <Button size="sm" variant="outline">Retire</Button>
+                          </Link>
                         </TableCell>
                       </TableRow>
                     ))}

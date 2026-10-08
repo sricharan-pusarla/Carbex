@@ -85,7 +85,7 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold">Account Type</label>
-                <Select value={role} onValueChange={setRole}>
+                <Select value={role} onValueChange={(val) => setRole(val as string)}>
                   <SelectTrigger className="h-11">
                     <SelectValue />
                   </SelectTrigger>

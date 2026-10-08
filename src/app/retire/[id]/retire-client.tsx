@@ -80,9 +80,9 @@ export function RetireClient({ ownershipId, projectName, maxQuantity }: RetireCl
       </CardContent>
       
       <CardFooter className="flex gap-4 pt-4 pb-8 px-6">
-        <Button variant="outline" asChild className="w-1/3 h-12" disabled={isSubmitting}>
-          <Link href="/dashboard">Cancel</Link>
-        </Button>
+        <Link href="/dashboard" className="w-1/3">
+          <Button variant="outline" className="w-full h-12" disabled={isSubmitting}>Cancel</Button>
+        </Link>
         <Button 
           className="w-2/3 h-12 bg-emerald-600 hover:bg-emerald-700 text-white" 
           onClick={handleRetire}
