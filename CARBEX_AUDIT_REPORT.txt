@@ -1,0 +1,21 @@
+========================================
+CARBEX SYSTEM AUDIT
+========================================
+
+Frontend: Next.js 14.2.35 (React 18) with App Router, TailwindCSS, shadcn/ui.
+Backend: Next.js Server Actions and API Routes.
+Database: PostgreSQL
+Authentication: NextAuth.js (v4.24.15) with Credentials provider (bcryptjs for hashing).
+Prisma: v5.22.0
+PostgreSQL features: pgcrypto, btree_gist extension for `int8range` overlap exclusion.
+Range ledger: Custom PL/pgSQL triggers and functions (`split_range`, `transfer_credits`, `retire_credits`, `verify_ledger_chain`) alongside the `credit_range` and `ledger_event` tables.
+Document system: Uploads local multipart/form-data to `storage/documents` via WebRTC/Camera or File Input. Serves securely via `api/documents/[id]`.
+Admin: Dedicated `/admin` and `/admin/verify/[id]` routes. Uses server action `approveVerification` to securely MINT credits onto the ledger, trigger Listings, and modify CarbonProject.
+Seller: Features `/seller` dashboard and `/seller/add-project`. Can see document verification outcomes with randomized dummy AI feedback.
+Buyer: Can browse `/marketplace` and `/projects/[id]`. Can purchase available credits. Can trigger `/retire/[id]` to retire owned credits.
+Marketplace: Projects displayed when `verificationStatus = 'VERIFIED'`. Listings are created dynamically during admin approval.
+
+List of obvious problems:
+- `Transaction` and `Retirement` tracking uses traditional relational models alongside the secure `credit_range` ledger.
+- A backfill issue previously surfaced during admin project approvals (the initial credit minting assigned ownership to the admin instead of the seller, which has now been fixed, but warrants deep testing).
+- The dummy document verification logic creates simulated randomness rather than utilizing real AI workflows.
