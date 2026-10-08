@@ -65,6 +65,15 @@ export function AddProjectForm() {
     setIsSubmitting(true);
     setError(null);
 
+    // Validate mandatory documents
+    const missingDocs = requiredDocs.filter(doc => doc.isRequired && !documents[doc.id]);
+    
+    if (missingDocs.length > 0) {
+      setError(`Cannot submit. Missing mandatory documents: ${missingDocs.map(d => d.name).join(", ")}`);
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
     
     // Append all uploaded documents
@@ -91,7 +100,7 @@ export function AddProjectForm() {
           </div>
           <h2 className="text-2xl font-bold mb-2">Project Submitted!</h2>
           <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            Your project has been successfully submitted to the Carbex registry. Our automated Trust Score Engine has generated its initial audit profile. It is currently pending Admin verification.
+            Your project and all supporting documents have been successfully submitted to the Carbex registry. It is currently pending verification by an Administrator before it can be listed.
           </p>
           <Link href="/seller">
             <Button size="lg">Return to Seller Dashboard</Button>
@@ -279,7 +288,7 @@ export function AddProjectForm() {
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Submit Project for Audit
+            Submit Project for Verification
           </Button>
         </CardFooter>
       </Card>
