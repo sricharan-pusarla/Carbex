@@ -217,3 +217,32 @@ model ProjectVerification {
 
   project CarbonProject @relation(fields: [projectId], references: [id])
 }
+
+
+model registry {
+  id        String   @id @default(uuid())
+  projectId String   @unique
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model credit_range {
+  id           String                   @id @default(uuid())
+  registry_id  String
+  serial_range Unsupported("int8range")
+  owner_id     String
+  status       String                   @default("AVAILABLE")
+}
+
+model ledger_event {
+  id            String                   @id @default(uuid())
+  registry_id   String
+  event_type    String
+  serial_range  Unsupported("int8range")
+  from_owner_id String?
+  to_owner_id   String
+  quantity      BigInt
+  prev_hash     String?
+  hash          String
+  created_at    DateTime                 @default(now())
+}
