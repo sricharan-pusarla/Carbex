@@ -6,6 +6,26 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 
+function formatStatCurrency(amount: number): string {
+  if (amount >= 10_000_000) {
+    return `₹${(amount / 10_000_000).toFixed(2)} Cr`;
+  }
+  if (amount >= 100_000) {
+    return `₹${(amount / 100_000).toFixed(2)} Lakh`;
+  }
+  return `₹${amount.toLocaleString("en-IN")}`;
+}
+
+function formatStatNumber(num: number): string {
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(2)}M`;
+  }
+  if (num >= 100_000) {
+    return `${(num / 100_000).toFixed(2)}L`;
+  }
+  return num.toLocaleString("en-IN");
+}
+
 export default async function Home() {
   const projects = await prisma.carbonProject.findMany({
     select: {
@@ -71,7 +91,7 @@ export default async function Home() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <CardTitle className="text-xl font-bold tracking-tight">Amazonas Reforestation</CardTitle>
-                      <CardDescription className="mt-1 font-medium">Brazil â€¢ Reforestation</CardDescription>
+                      <CardDescription className="mt-1 font-medium">Brazil • Reforestation</CardDescription>
                     </div>
                     <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 shadow-none font-bold">VERIFIED</Badge>
                   </div>
@@ -80,7 +100,7 @@ export default async function Home() {
                   <div className="flex justify-between items-end">
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Current Price</p>
-                      <p className="text-4xl font-bold tracking-tight">â‚¹1,200 <span className="text-sm font-medium text-muted-foreground">/ tCOâ‚‚e</span></p>
+                      <p className="text-4xl font-bold tracking-tight">₹1,200 <span className="text-sm font-medium text-muted-foreground">/ tCO₂e</span></p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Trust Score</p>
@@ -128,22 +148,36 @@ export default async function Home() {
           <p className="text-center text-xs font-bold text-emerald-600 tracking-widest uppercase mb-10 flex justify-center items-center gap-2">
             <CheckCircle2 className="h-4 w-4" /> Live Platform Statistics (PostgreSQL Range Ledger)
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center">
-            <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary">₹{totalValueTraded.toLocaleString()}</h3>
-              <p className="text-sm text-muted-foreground font-medium">Value Traded</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 text-center">
+            <div className="p-4 md:p-6 rounded-2xl bg-card border border-border/60 shadow-sm flex flex-col justify-center min-w-0 overflow-hidden">
+              <h3 
+                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-primary truncate" 
+                title={`₹${totalValueTraded.toLocaleString('en-IN')}`}
+              >
+                {formatStatCurrency(totalValueTraded)}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1 truncate">Value Traded</p>
             </div>
-            <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">{totalListed.toLocaleString()}</h3>
-              <p className="text-sm text-muted-foreground font-medium">Credits Listed</p>
+            <div className="p-4 md:p-6 rounded-2xl bg-card border border-border/60 shadow-sm flex flex-col justify-center min-w-0 overflow-hidden">
+              <h3 
+                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight truncate" 
+                title={`${totalListed.toLocaleString('en-IN')} Credits Listed`}
+              >
+                {formatStatNumber(totalListed)}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1 truncate">Credits Listed</p>
             </div>
-            <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter">{verifiedCount}</h3>
-              <p className="text-sm text-muted-foreground font-medium">Verified Projects</p>
+            <div className="p-4 md:p-6 rounded-2xl bg-card border border-border/60 shadow-sm flex flex-col justify-center min-w-0 overflow-hidden">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground truncate">
+                {verifiedCount}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1 truncate">Verified Projects</p>
             </div>
-            <div className="space-y-3">
-              <h3 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-emerald-600">{avgScore}/100</h3>
-              <p className="text-sm text-muted-foreground font-medium">Avg. Trust Score</p>
+            <div className="p-4 md:p-6 rounded-2xl bg-card border border-border/60 shadow-sm flex flex-col justify-center min-w-0 overflow-hidden">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-emerald-600 truncate">
+                {avgScore}/100
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1 truncate">Avg. Trust Score</p>
             </div>
           </div>
         </div>

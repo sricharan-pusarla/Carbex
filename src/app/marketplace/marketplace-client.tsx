@@ -169,7 +169,7 @@ export default function MarketplaceClient({ initialProjects }: { initialProjects
                   <div className="grid grid-cols-2 gap-6 mb-6">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Price</p>
-                      <p className="text-2xl font-bold">â‚¹{project.pricePerCredit.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">/ credit</span></p>
+                      <p className="text-2xl font-bold">₹{project.pricePerCredit.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">/ tCO₂e</span></p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Available</p>
