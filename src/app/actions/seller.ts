@@ -161,7 +161,7 @@ export async function submitProject(formData: FormData) {
     let engineRisk = null;
 
     if (hasDocuments) {
-      const engineResult = await runDummyVerificationEngine(savedDocuments);
+      const engineResult = await runDummyVerificationEngine(savedDocuments, project);
       engineFindings = JSON.stringify(engineResult);
       engineRisk = engineResult.overallRisk;
       
